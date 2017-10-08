@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>JiraQueries.Bussiness</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Jira\JiraAccessPoint.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JiraRestApi\JiraRestApi.csproj" />
+  </ItemGroup>
+
+</Project>
