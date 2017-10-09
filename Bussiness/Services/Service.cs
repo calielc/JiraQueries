@@ -5,13 +5,15 @@ using JiraQueries.Bussiness.Export;
 
 namespace JiraQueries.Bussiness.Services {
     public abstract class Service<T> : IService<T> {
+        private static readonly CultureInfo Culture = new CultureInfo("en-US");
+
         public string Project { get; set; }
         public string XsdUrl { get; set; }
 
         public abstract MappingBuilder<T> FieldsMap { get; }
 
         public virtual async Task<IXmlExporter> Xml(string xsdUrl) => new XmlExporter<T> {
-            Culture = new CultureInfo("en-US"),
+            Culture = Culture,
             Items = await Load(),
             Map = FieldsMap,
             XsdUrl = XsdUrl
@@ -22,7 +24,7 @@ namespace JiraQueries.Bussiness.Services {
         };
 
         public virtual async Task<ICsvExporter> Csv(string separator) => new CsvExporter<T> {
-            Culture = new CultureInfo("en-US"),
+            Culture = Culture,
             Items = await Load(),
             Map = FieldsMap,
             Separator = separator

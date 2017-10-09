@@ -20,10 +20,10 @@ namespace JiraQueries.Bussiness.Services {
             .Add("dateYear", item => item.Milestones.ResolvedAt.Year)
             .Add("dateMonth", item => item.Milestones.ResolvedAt.Month.Value)
             .Add("dateQuarter", item => item.Milestones.ResolvedAt.Quarter.Value)
-            .Add("dateDayOfWeek", item => (int) item.Milestones.ResolvedAt.Week.DayValue)
+            .Add("dateDayOfWeek", item => (int)item.Milestones.ResolvedAt.Week.DayValue)
 
             .Add("key", item => item.Key)
-            .Add("title", item => item.Summary)
+            .Add("title", item => $"{item.Key} - {item.Summary}")
 
             .Add("type", item => item.IssueType)
             .Add("status", item => item.Status)
@@ -33,10 +33,24 @@ namespace JiraQueries.Bussiness.Services {
 
             .Add("epic", item => item.Epic)
             .Add("subtasks", item => item.SubTasks?.Count)
-            .Add("hasSubtasks", item => item.SubTasks?.Any?.Value)
+            .Add("hasSubtasks", item => item.SubTasks?.Any?.Text)
 
             .Add("assignee", item => item.Assignee)
+            .Add("assigneeShort", item => {
+                var idx = item.Assignee.IndexOf(" ");
+                if (idx >= 0) {
+                    return item.Assignee.Substring(0, idx);
+                }
+                return item.Assignee;
+            })
             .Add("reviewer", item => item.Reviewer)
+            .Add("reviewerShort", item => {
+                var idx = item.Reviewer.IndexOf(" ");
+                if (idx >= 0) {
+                    return item.Reviewer.Substring(0, idx);
+                }
+                return item.Reviewer;
+            })
 
             .Add("storypoints", item => item.StoryPoints)
             .Add("hoursSpent", item => item.AggregateTimespent?.TotalHours, "0.00")
