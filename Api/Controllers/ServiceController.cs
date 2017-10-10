@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JiraQueries.Api.Util;
-using JiraQueries.Bussiness.Jira;
-using JiraQueries.Bussiness.Models;
 using JiraQueries.Bussiness.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,33 +42,10 @@ namespace JiraQueries.Api.Controllers {
         public async Task<IEnumerable<T>> Raw(string project) {
             var service = CreateService(project);
 
-            var issues = await service.Json();
+            var issues = await service.Raw();
             return issues;
         }
 
         protected abstract IService<T> CreateService(string project);
-    }
-
-    [Obsolete]
-    public sealed class CampaignController : ServiceController<IssueViewModel> {
-        protected override IService<IssueViewModel> CreateService(string project)
-            => new CampaignService(JiraAccessPoint.Instance) {
-                Project = project
-            };
-    }
-
-    [Obsolete]
-    public sealed class TimelineController : ServiceController<IssueViewModel> {
-        protected override IService<IssueViewModel> CreateService(string project)
-            => new TimelineService(JiraAccessPoint.Instance) {
-                Project = project
-            };
-    }
-
-    public sealed class AllTypesAndDoneOrRejectedController : ServiceController<IssueViewModel> {
-        protected override IService<IssueViewModel> CreateService(string project)
-            => new AllTypesAndDoneOrRejectedService(JiraAccessPoint.Instance) {
-                Project = project
-            };
     }
 }

@@ -30,7 +30,7 @@ namespace JiraQueries.Bussiness.Services {
             Separator = separator
         };
 
-        public virtual async Task<IEnumerable<T>> Json() => await Load();
+        public virtual async Task<IEnumerable<T>> Raw() => await Load();
 
         protected abstract Task<IEnumerable<T>> Load();
     }

@@ -9,7 +9,9 @@ namespace JiraQueries.Bussiness.Services {
 
         Task<IXmlExporter> Xml(string xsdUrl);
         IXmlExporter Xsd();
+
         Task<ICsvExporter> Csv(string separator);
-        Task<IEnumerable<T>> Json();
+
+        Task<IEnumerable<T>> Raw();
     }
 }

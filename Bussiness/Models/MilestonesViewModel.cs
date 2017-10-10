@@ -1,77 +1,154 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JiraQueries.JiraRestApi.Models;
 
 namespace JiraQueries.Bussiness.Models {
     public sealed class MilestonesViewModel {
+        private const string StatusInProgress = "In Progress";
+        private const string StatusPullRequest = "Pull Request";
+        private const string StatusTest = "Test";
+        private const string StatusRejected = "Rejected";
+        private const string StatusDone = "Done";
+        private const string FlaggedImpediment = "Impediment";
+
+        private readonly Item[] _statusCollection;
+        private readonly Item[] _flaggedCollection;
+
+        private readonly DateTime _createdAt;
         private readonly DateTime? _inProgressAt;
         private readonly DateTime? _pullRequestAt;
         private readonly DateTime? _testAt;
-        private readonly DateTime _createdAt;
-        private readonly DateTime? _rejectedAt;
         private readonly DateTime? _doneAt;
+        private readonly DateTime? _rejectedAt;
         private readonly DateTime? _resolvedAt;
 
-        private MilestonesViewModel(JiraIssue issue) {
-            var histories = issue.ChangeLog?.Histories
-                .SelectMany(history => history.Items.Where(historyItem => historyItem.Field == "status").Select(historyItem => new Item(history, historyItem)))
-                .ToArray()
-                ?? new Item[0];
+        private readonly TimeSpan? _timeInProgress;
+        private readonly TimeSpan? _timeInPullRequest;
+        private readonly TimeSpan? _timeInInTest;
 
+        private MilestonesViewModel(JiraIssue issue) {
             _createdAt = issue.Fields.Created;
-            _inProgressAt = histories.LastOrDefault(item => item.To == "In Progress")?.Created;
-            _pullRequestAt = histories.LastOrDefault(item => item.To == "Pull Request")?.Created;
-            _testAt = histories.LastOrDefault(item => item.To == "Test")?.Created;
-            _rejectedAt = issue.Fields.Status == "Rejected" ? histories.LastOrDefault(item => item.To == "Rejected")?.Created : default;
-            _doneAt = issue.Fields.Status == "Done" ? histories.LastOrDefault(item => item.To == "Done")?.Created : default;
+
+            _statusCollection = CreateCollection("status");
+            _flaggedCollection = CreateCollection("Flagged");
+
+            _inProgressAt = _statusCollection.LastOrDefault(item => item.To == StatusInProgress)?.When;
+            _pullRequestAt = _statusCollection.LastOrDefault(item => item.To == StatusPullRequest)?.When;
+            _testAt = _statusCollection.LastOrDefault(item => item.To == StatusTest)?.When;
+            _rejectedAt = issue.Fields.Status == StatusRejected ? _statusCollection.LastOrDefault(item => item.To == StatusRejected)?.When : default;
+            _doneAt = issue.Fields.Status == StatusDone ? _statusCollection.LastOrDefault(item => item.To == StatusDone)?.When : default;
             _resolvedAt = _doneAt ?? _rejectedAt;
+
+            _timeInProgress = CalcTimeElapse(_statusCollection, StatusInProgress);
+            _timeInPullRequest = CalcTimeElapse(_statusCollection, StatusPullRequest);
+            _timeInInTest = CalcTimeElapse(_statusCollection, StatusTest);
+
+            Item[] CreateCollection(string field) {
+                if (issue.ChangeLog is null || issue.ChangeLog.Histories is null) {
+                    return new Item[0];
+                }
+
+                return issue.ChangeLog.Histories
+                    .SelectMany(history => history.Items.Where(item => item.Field == field).Select(item => new Item(history, item)))
+                    .ToArray();
+            }
         }
 
         public DateTimeViewModel CreatedAt => _createdAt;
+
         public DateTimeViewModel InProgressAt => _inProgressAt;
         public DateTimeViewModel PullRequestAt => _pullRequestAt;
         public DateTimeViewModel TestAt => _testAt;
+
         public DateTimeViewModel RejectedAt => _rejectedAt;
         public DateTimeViewModel DoneAt => _doneAt;
         public DateTimeViewModel ResolvedAt => _resolvedAt;
 
-        public TimeSpanViewModel TimeToStart => CalcTimeSpan(_createdAt, _inProgressAt, _pullRequestAt, _testAt, _resolvedAt);
-        public TimeSpanViewModel TimeToReject => CalcTimeSpan(_createdAt, _rejectedAt);
-        public TimeSpanViewModel TimeToDone => CalcTimeSpan(_createdAt, _doneAt);
-        public TimeSpanViewModel TimeToResolve => CalcTimeSpan(_createdAt, _resolvedAt);
+        public TimeSpanViewModel TimeInProgress => _timeInProgress;
+        public TimeSpanViewModel TimeInPullRequest => _timeInPullRequest;
+        public TimeSpanViewModel TimeInTest => _timeInInTest;
 
-        public TimeSpanViewModel TimeInProgress => CalcTimeSpan(_inProgressAt, _pullRequestAt, _testAt, _resolvedAt);
-        public TimeSpanViewModel TimeInPullRequest => CalcTimeSpan(_pullRequestAt, _testAt, _resolvedAt);
-        public TimeSpanViewModel TimeInTest => CalcTimeSpan(_testAt, _resolvedAt);
-        public TimeSpanViewModel TimeInDevelopment => CalcTimeSpan(_inProgressAt, _resolvedAt);
+        public TimeSpanViewModel TimeInImpediment => CalcTimeElapse(_flaggedCollection, FlaggedImpediment);
+
+        public TimeSpanViewModel TimeInDevelopment {
+            get {
+                if (_timeInProgress is null && _timeInPullRequest is null && _timeInInTest is null) {
+                    return null;
+                }
+
+                return (_timeInProgress ?? TimeSpan.Zero) + (_timeInPullRequest ?? TimeSpan.Zero) + (_timeInInTest ?? TimeSpan.Zero);
+            }
+        }
+
+        public TimeSpanViewModel TimeToStart {
+            get {
+                if (_statusCollection is null || _statusCollection.Length == 0) {
+                    return null;
+                }
+
+                var firstResponse = _statusCollection.FirstOrDefault(item
+                    => item.To == StatusInProgress
+                    || item.To == StatusPullRequest
+                    || item.To == StatusTest
+                    || item.To == StatusDone
+                    || item.To == StatusRejected
+                );
+
+                if (firstResponse is null) {
+                    return null;
+                }
+
+                return firstResponse.When - _createdAt;
+            }
+        }
+        public TimeSpanViewModel TimeToReject => _rejectedAt - _createdAt;
+        public TimeSpanViewModel TimeToDone => _doneAt - _createdAt;
+        public TimeSpanViewModel TimeToResolve => _resolvedAt - _createdAt;
 
         public static implicit operator MilestonesViewModel(JiraIssue issue) => new MilestonesViewModel(issue);
 
-        private static TimeSpan? CalcTimeSpan(DateTime? before, params DateTime?[] afters) {
-            if (before is null) {
-                return default;
+        private static TimeSpan? CalcTimeElapse(IReadOnlyList<Item> histories, string value) {
+            if (histories is null || histories.Count == 0) {
+                return null;
             }
 
-            var valids = afters.Where(item => item != null).Select(item => item.Value).ToArray();
-            if (valids.Length == 0) {
-                return default;
+            TimeSpan? result = default;
+            for (var idx = 0; idx < histories.Count; idx++) {
+                var start = histories[idx];
+                if (start.To != value) {
+                    continue;
+                }
+
+                var end = histories.Skip(idx).FirstOrDefault(x => x.From == value);
+                if (end == null) {
+                    continue;
+                }
+
+                if (result is null) {
+                    result = end.When - start.When;
+                }
+                else {
+                    result += end.When - start.When;
+                }
             }
 
-            var after = valids.Min();
-            if (after < before.Value) {
-                return default;
+            if (result is null) {
+                return null;
             }
-
-            return after - before.Value;
+            return result.Value;
         }
 
         private class Item {
             public Item(JiraHistory history, JiraHistoryItem historyItem) {
-                Created = history.Created;
+                When = history.Created;
+                From = historyItem.FromText ?? historyItem.FromValue;
                 To = historyItem.ToText ?? historyItem.ToValue;
             }
 
-            public DateTime Created { get; }
+            public DateTime When { get; }
+
+            public string From { get; }
             public string To { get; }
         }
     }
