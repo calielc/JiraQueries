@@ -54,6 +54,7 @@ namespace JiraQueries.Bussiness.Services {
             .Add("hoursSpentPerReviewer", item => item.TimeSpent?.Reviewer?.TotalHours, "0.00")
             .Add("hoursSpentPerReviewerPerc", item => item.TimeSpent?.ReviewerPercentual, "0.00")
             .Add("hoursSpentPerOthers", item => item.TimeSpent?.Others?.TotalHours, "0.00")
+            .Add("hoursSpentPerOthersPerc", item => item.TimeSpent?.OthersPercentual, "0.00")
 
             .Add("daysToStart", item => item.Milestones.TimeToStart?.TotalDays, "0.00")
             .Add("daysToReject", item => item.Milestones.TimeToReject?.TotalDays, "0.00")

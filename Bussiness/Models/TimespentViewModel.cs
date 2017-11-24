@@ -28,9 +28,10 @@ namespace JiraQueries.Bussiness.Models {
                 ReviewerPercentual = 1d * timespent / issue.Fields.Timespent;
             }
 
-            Others = timespentPerAuthor.Where(pair => pair.Key != assignee && pair.Key != reviewer).Sum(pair => pair.Value);
+            var othersTimespent = timespentPerAuthor.Where(pair => pair.Key != assignee && pair.Key != reviewer).Sum(pair => pair.Value);
+            Others = othersTimespent;
+            OthersPercentual = 1d * othersTimespent / issue.Fields.Timespent;
         }
-
 
         public TimeSpanViewModel Assignee { get; }
         public double? AssigneePercentual { get; }
@@ -39,6 +40,7 @@ namespace JiraQueries.Bussiness.Models {
         public double? ReviewerPercentual { get; }
 
         public TimeSpanViewModel Others { get; }
+        public double? OthersPercentual { get; }
 
         public TimeSpanViewModel Total { get; }
         public TimeSpanViewModel TotalIncludingSubstask { get; }

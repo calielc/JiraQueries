@@ -51,6 +51,7 @@ namespace JiraQueries.Bussiness.Models {
 
                 return issue.ChangeLog.Histories
                     .SelectMany(history => history.Items.Where(item => item.Field == field).Select(item => new Item(history, item)))
+                    .OrderBy(item => item.When)
                     .ToArray();
             }
         }
