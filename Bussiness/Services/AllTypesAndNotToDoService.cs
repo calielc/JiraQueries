@@ -6,10 +6,10 @@ using JiraQueries.Bussiness.Models;
 using JiraQueries.JiraRestApi.Jql;
 
 namespace JiraQueries.Bussiness.Services {
-    public sealed class AllTypesAndDoneOrRejectedService : IJiraService {
+    public sealed class AllTypesAndNotToDoService : IJiraService {
         private readonly CachedJiraSearch _searcher;
 
-        public AllTypesAndDoneOrRejectedService(JiraAccessPoint accessPoint) {
+        public AllTypesAndNotToDoService(JiraAccessPoint accessPoint) {
             _searcher = accessPoint.CachedSearch;
         }
 
@@ -18,7 +18,7 @@ namespace JiraQueries.Bussiness.Services {
         public async Task<IEnumerable<IssueViewModel>> Load() {
             var jql = Jql.And(
                 JqlField.Project.Equal(Project),
-                JqlField.Status.In(JqlStatus.Done, JqlStatus.Rejected),
+                JqlField.Status.NotEqual(JqlStatus.ToDo),
                 JqlField.IssueType.In(JqlIssueType.Bug, JqlIssueType.Story, JqlIssueType.Task, JqlIssueType.SubTask)
             );
 

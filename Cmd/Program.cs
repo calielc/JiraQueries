@@ -11,40 +11,35 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Cmd {
     class Program {
-        static async Task Main(string[] args) {
-            const string project = "PIM";
-            var waitTime = TimeSpan.FromHours(6);
+        private static readonly TimeSpan WaitTime = TimeSpan.FromHours(6);
 
+        static async Task Main(string[] args) {
+            var service = CreateService("PIM");
             while (true) {
                 Console.WriteLine($"Starting at: {DateTime.Now}");
 
-                await Run(project);
+                await Run(service);
 
                 Console.WriteLine();
                 Console.WriteLine();
-                Console.WriteLine($"Waiting until {DateTime.Now.Add(waitTime)} to run again");
-                System.Threading.Thread.Sleep(waitTime);
+                Console.WriteLine($"Waiting until {DateTime.Now.Add(WaitTime)} to run again");
+                System.Threading.Thread.Sleep(WaitTime);
                 Console.WriteLine();
                 Console.WriteLine();
             }
         }
 
-        private static async Task Run(string project) {
-            var service = new AllTypesAndDoneOrRejectedService(JiraAccessPoint.Instance) {
-                Project = project
-            };
-
+        private static async Task Run(IJiraService service) {
             Console.WriteLine("Querying on Jira...");
-            var viewModels = await service.Raw();
+            var viewModels = await service.Load();
 
-            var pool = GetPool();
-
-            Console.Write("Saving...");
             var count = 0;
-
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             try {
+                var pool = GetPool();
+                Console.Write("Saving...");
+
                 Parallel.ForEach(viewModels, viewModel => {
                     using (var context = pool.Rent()) {
                         try {
@@ -65,9 +60,14 @@ namespace Cmd {
             }
             finally {
                 stopwatch.Stop();
-                Console.WriteLine(
-                    $"{count} items in {stopwatch.Elapsed} = {count / stopwatch.Elapsed.TotalSeconds:0.0} items/second");
+                Console.WriteLine($"{count} items in {stopwatch.Elapsed} = {count / stopwatch.Elapsed.TotalSeconds:0.0} items/second");
             }
+        }
+
+        private static IJiraService CreateService(string project) {
+            return new AllTypesAndDoneOrRejectedService(JiraAccessPoint.Instance) {
+                Project = project
+            };
         }
 
         private static DbContextPool<MySqlContext> GetPool() {
@@ -84,7 +84,7 @@ namespace Cmd {
                 context.Issues.Add(dbIssue);
             }
 
-            dbIssue.Fill(viewModel);
+            viewModel.CoptyTo(dbIssue);
 
             context.SaveChanges();
         }
