@@ -13,7 +13,23 @@ namespace Cmd {
     class Program {
         static async Task Main(string[] args) {
             const string project = "PIM";
+            var waitTime = TimeSpan.FromHours(6);
 
+            while (true) {
+                Console.WriteLine($"Starting at: {DateTime.Now}");
+
+                await Run(project);
+
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine($"Waiting until {DateTime.Now.Add(waitTime)} to run again");
+                System.Threading.Thread.Sleep(waitTime);
+                Console.WriteLine();
+                Console.WriteLine();
+            }
+        }
+
+        private static async Task Run(string project) {
             var service = new AllTypesAndDoneOrRejectedService(JiraAccessPoint.Instance) {
                 Project = project
             };
@@ -49,7 +65,8 @@ namespace Cmd {
             }
             finally {
                 stopwatch.Stop();
-                Console.WriteLine($"{count} items in {stopwatch.Elapsed} = {count / stopwatch.Elapsed.TotalSeconds:0.0} items/second");
+                Console.WriteLine(
+                    $"{count} items in {stopwatch.Elapsed} = {count / stopwatch.Elapsed.TotalSeconds:0.0} items/second");
             }
         }
 
