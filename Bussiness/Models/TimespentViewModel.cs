@@ -17,7 +17,7 @@ namespace JiraQueries.Bussiness.Models {
                 long? timespent = timespentPerAuthor.ContainsKey(assignee) ? timespentPerAuthor[assignee] : default;
 
                 Assignee = timespent;
-                AssigneePercentual = 1d * timespent / issue.Fields.Timespent;
+                AssigneePercentual = CalcPercentual(timespent);
             }
 
             var reviewer = issue.Fields.Reviewer?.Key;
@@ -25,13 +25,21 @@ namespace JiraQueries.Bussiness.Models {
                 long? timespent = timespentPerAuthor.ContainsKey(reviewer) ? timespentPerAuthor[reviewer] : default;
 
                 Reviewer = timespent;
-                ReviewerPercentual = 1d * timespent / issue.Fields.Timespent;
+                ReviewerPercentual = CalcPercentual(timespent);
             }
 
             var othersTimespent = timespentPerAuthor.Where(pair => pair.Key != assignee && pair.Key != reviewer).Sum(pair => pair.Value);
             Others = othersTimespent;
-            OthersPercentual = 1d * othersTimespent / issue.Fields.Timespent;
+            OthersPercentual = CalcPercentual(othersTimespent);
+
+            double? CalcPercentual(double? value) {
+                if (value is null || issue.Fields.Timespent is null || issue.Fields.Timespent == 0) {
+                    return default;
+                }
+                return value / issue.Fields.Timespent;
+            }
         }
+
 
         public TimeSpanViewModel Assignee { get; }
         public double? AssigneePercentual { get; }
