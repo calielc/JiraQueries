@@ -11,9 +11,10 @@ using System;
 namespace Cmd.Migrations
 {
     [DbContext(typeof(MySqlContext))]
-    partial class MySqlContextModelSnapshot : ModelSnapshot
+    [Migration("20171204201726_ChangeFactorType")]
+    partial class ChangeFactorType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,8 +94,6 @@ namespace Cmd.Migrations
 
                     b.Property<double?>("ProductizationFactor");
 
-                    b.Property<double?>("ProductizationHours");
-
                     b.Property<string>("ProjectKey");
 
                     b.Property<string>("ProjectName");
@@ -120,8 +119,6 @@ namespace Cmd.Migrations
                     b.Property<string>("TechnologyUpdate");
 
                     b.Property<double?>("TechnologyUpdateFactor");
-
-                    b.Property<double?>("TechnologyUpdateHours");
 
                     b.Property<string>("Title");
 

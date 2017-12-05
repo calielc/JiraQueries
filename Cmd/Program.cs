@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Cmd {
     class Program {
-        private static readonly TimeSpan WaitTime = TimeSpan.FromHours(6);
+        private static readonly TimeSpan WaitTime = TimeSpan.FromHours(3);
 
         static async Task Main(string[] args) {
             var service = CreateService("PIM");
@@ -84,7 +84,7 @@ namespace Cmd {
                 context.Issues.Add(dbIssue);
             }
 
-            viewModel.CoptyTo(dbIssue);
+            viewModel.CopyTo(dbIssue);
 
             context.SaveChanges();
         }

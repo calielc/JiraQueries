@@ -298,4 +298,4 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 Bussiness/Jira/JiraAccessPoint.json
-Cmd/App.config
+Cmd/Database/ConnectionString.json

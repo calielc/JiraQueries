@@ -6,7 +6,7 @@
             _value = value;
         }
 
-        public static JqlStatus ToDo = new JqlStatus("ToDo");
+        public static JqlStatus ToDo = new JqlStatus("To Do");
         public static JqlStatus Done = new JqlStatus("Done");
         public static JqlStatus Rejected = new JqlStatus("Rejected");
 

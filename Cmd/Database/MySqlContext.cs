@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Cmd.Database {
     public class MySqlContext : DbContext {
-        public MySqlContext(DbContextOptions<MySqlContext> options) : base(options) { }
+        public MySqlContext(DbContextOptions options) : base(options) { }
 
         public LoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
 

@@ -26,9 +26,47 @@ namespace JiraQueries.Bussiness.Models {
 
         public string FinanciadorImplementacao => _fields.FinanciadorImplementacao;
 
-        public string FatorProdutizacao => _fields.FatorProdutizacao;
+        public string Produtizacao => _fields.FatorProdutizacao;
 
-        public string FatorAtualizacaoTecnologica => _fields.FatorAtualizacaoTecnologica;
+        public double? ProdutizacaoPercentual {
+            get {
+                switch (_fields.FatorProdutizacao) {
+                    case null:
+                        return null;
+                    case "100% Produto":
+                        return 1.0d;
+                    case "70% Produto":
+                        return 0.7d;
+                    case "30% Produto":
+                        return 0.3d;
+                    case "0% Produto":
+                        return 0;
+                    default:
+                        return null;
+                }
+            }
+        }
+
+        public string AtualizacaoTecnologica => _fields.FatorAtualizacaoTecnologica;
+
+        public double? AtualizacaoTecnologicaPercentual {
+            get {
+                switch (_fields.FatorAtualizacaoTecnologica) {
+                    case null:
+                        return null;
+                    case "100% - Atualização Tecnológica":
+                        return 1.0d;
+                    case "70% - Atualização Tecnológica":
+                        return 0.7d;
+                    case "30% - Atualização Tecnológica":
+                        return 0.3d;
+                    case "0% - Atualização Tecnológica":
+                        return 0;
+                    default:
+                        return null;
+                }
+            }
+        }
 
         public string[] Contratos => _fields.Contratos?.Select(contrato => (string) contrato).ToArray();
     }
