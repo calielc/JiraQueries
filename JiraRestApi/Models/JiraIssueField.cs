@@ -61,6 +61,9 @@ namespace JiraQueries.JiraRestApi.Models {
         [JsonProperty("customfield_10007")]
         public string[] Sprints { get; set; }
 
+        [JsonProperty("versions")]
+        public JiraCommon[] AffectsVersions { get; set; }
+
         public JiraCommon[] FixVersions { get; set; }
 
         public DateTime Created { get; set; }

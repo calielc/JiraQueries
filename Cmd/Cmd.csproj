@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20171205211646_AddAffectVersions.cs" />
+    <Compile Remove="Migrations\20171205212705_AddAffectVersions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Database\ConnectionString.json" />
   </ItemGroup>
 

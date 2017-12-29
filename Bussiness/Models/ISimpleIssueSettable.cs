@@ -64,6 +64,10 @@ namespace JiraQueries.Bussiness.Models {
         string BugCause { set; }
         string BugSource { set; }
         string ServiceDesk { set; }
+        string AffectsShortVersion { set; }
+        string AffectsFullVersion { set; }
+        string FixShortVersion { set; }
+        string FixFullVersion { set; }
 
         string LabelBacklog { set; }
         string LabelNaoPlanejado { set; }

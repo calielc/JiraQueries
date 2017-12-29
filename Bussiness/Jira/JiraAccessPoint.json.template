@@ -1,0 +1,5 @@
+﻿{
+  "url": "https://<url>.atlassian.net/rest/api/2/",
+  "scheme": "Basic",
+  "token": "<base64>"
+}

@@ -65,10 +65,14 @@ namespace JiraQueries.Bussiness.Models {
 
             settable.BugCause = issueViewModel.CustomFields.CausaRaiz;
             settable.BugSource = issueViewModel.CustomFields.Fonte;
-            settable.ServiceDesk = CreateServiceDesk(issueViewModel);
+            settable.ServiceDesk = issueViewModel.CustomFields.Chamado;
+            settable.AffectsShortVersion = issueViewModel.AffectsShortVersion;
+            settable.AffectsFullVersion = issueViewModel.AffectsFullVersion;
+            settable.FixShortVersion = issueViewModel.FixShortVersion;
+            settable.FixFullVersion = issueViewModel.FixFullVersion;
 
-            settable.LabelBacklog = AdjustLabel(issueViewModel.Labels?.Backlog, "Backlog", "Compromisso");
-            settable.LabelNaoPlanejado = AdjustLabel(issueViewModel.Labels?.NaoPlanejado, "NaoPlanejado", "Planejado");
+            settable.LabelBacklog = AdjustLabel(issueViewModel.Labels?.Backlog, Resource.Backlog, Resource.SprintGoal);
+            settable.LabelNaoPlanejado = AdjustLabel(issueViewModel.Labels?.NaoPlanejado, Resource.NotPlanned, Resource.Planned);
         }
 
         private static string CreateShortName(string name) {
@@ -95,15 +99,5 @@ namespace JiraQueries.Bussiness.Models {
 
         private static string AdjustLabel(BoolViewModel value, string labelPositive, string labelNegative)
             => value?.Value == true ? labelPositive : labelNegative;
-
-        private static string CreateServiceDesk(IssueViewModel viewModel) {
-            if (viewModel.CustomFields.Chamado is null) {
-                return null;
-            }
-            if (viewModel.CustomFields.Chamado) {
-                return "INC";
-            }
-            return "No";
-        }
     }
 }

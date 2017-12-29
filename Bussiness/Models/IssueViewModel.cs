@@ -31,9 +31,11 @@ namespace JiraQueries.Bussiness.Models {
 
         public SprintViewModel Sprint => _issue.Fields.Sprints?.FirstOrDefault();
 
-        public string FixVersions => _issue.Fields.FixVersions == null
-            ? default
-            : string.Join(", ", _issue.Fields.FixVersions.Select(fixVersion => (string) fixVersion));
+        public string AffectsShortVersion => IdentifyVersion(_issue.Fields, 2, _issue.Fields.AffectsVersions);
+        public string AffectsFullVersion => IdentifyVersion(_issue.Fields, 3, _issue.Fields.AffectsVersions);
+
+        public string FixShortVersion => IdentifyVersion(_issue.Fields, 2, _issue.Fields.FixVersions);
+        public string FixFullVersion => IdentifyVersion(_issue.Fields, 3, _issue.Fields.FixVersions);
 
         public int? StoryPoints => CalcStory();
 
@@ -70,6 +72,24 @@ namespace JiraQueries.Bussiness.Models {
 
                 return null;
             }
+        }
+
+        private static string IdentifyVersion(JiraIssueField issueFields, int maxParts, JiraCommon[] versions) {
+            if (issueFields.IssueType != JiraConsts.IssueTypeBug) {
+                return null;
+            }
+
+            if (versions == null || versions.Any() == false) {
+                return Resource.Unspecified;
+            }
+
+            var version = versions.Select(item => (string) item).OrderBy(text => text).First();
+            var parts = version.Split(".").Take(maxParts).ToList();
+            while (parts.Count < maxParts) {
+                parts.Add("0");
+            }
+
+            return string.Join(".", parts);
         }
     }
 }

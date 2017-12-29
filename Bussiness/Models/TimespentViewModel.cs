@@ -40,7 +40,6 @@ namespace JiraQueries.Bussiness.Models {
             }
         }
 
-
         public TimeSpanViewModel Assignee { get; }
         public double? AssigneePercentual { get; }
 

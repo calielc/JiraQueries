@@ -35,7 +35,6 @@ namespace Cmd.Database {
         public string ReviewerName { get; set; }
         public string ReviewerShortName { get; set; }
 
-
         public double? HoursSpent { get; set; }
         public double? HoursSpentPerAssignee { get; set; }
         public double? HoursSpentPerAssigneePerc { get; set; }
@@ -68,6 +67,10 @@ namespace Cmd.Database {
         public string BugCause { get; set; }
         public string BugSource { get; set; }
         public string ServiceDesk { get; set; }
+        public string AffectsShortVersion { get; set; }
+        public string AffectsFullVersion { get; set; }
+        public string FixShortVersion { get; set; }
+        public string FixFullVersion { get; set; }
 
         public string LabelBacklog { get; set; }
         public string LabelNaoPlanejado { get; set; }

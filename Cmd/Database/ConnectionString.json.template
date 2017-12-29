@@ -1,0 +1,3 @@
+﻿{
+  "MySql": "Server=<server>;User Id=<user>;Password=<password>;Database=<database>"
+}

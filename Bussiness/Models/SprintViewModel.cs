@@ -127,6 +127,9 @@ namespace JiraQueries.Bussiness.Models {
             if (name.StartsWith("PIM 11.")) {
                 return "Release 11";
             }
+            if (name.StartsWith("PIM 12.")) {
+                return "Release 12";
+            }
 
             return null;
         }

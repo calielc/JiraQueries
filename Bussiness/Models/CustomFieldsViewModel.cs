@@ -10,19 +10,43 @@ namespace JiraQueries.Bussiness.Models {
             _fields = fields;
         }
 
-        public BoolViewModel Chamado {
+        public string Chamado {
             get {
-                if (_fields.IssueType == "Bug") {
-                    var regex = new Regex("(INC ([ -]?(((SDW-)|PROD)?\\d*)[\\, e]?){1,}){1,}", RegexOptions.IgnoreCase);
-                    return regex.Match(_fields.Summary).Success;
+                if (_fields.IssueType != JiraConsts.IssueTypeBug) {
+                    return default;
                 }
-                return default;
+
+                var regex = new Regex("(INC ([ -]?(((SDW-)|PROD)?\\d*)[\\, e]?){1,}){1,}", RegexOptions.IgnoreCase);
+                if (regex.Match(_fields.Summary).Success) {
+                    return Resource.ServiceDesk;
+                }
+
+                return Resource.Internal;
             }
         }
 
-        public string CausaRaiz => _fields.IssueType == "Bug" ? _fields.CausaRaiz : default;
+        public string CausaRaiz {
+            get {
+                if (_fields.IssueType != JiraConsts.IssueTypeBug) {
+                    return default;
+                }
 
-        public string Fonte => _fields.IssueType == "Bug" ? _fields.Fonte : default;
+                return string.IsNullOrEmpty(_fields.CausaRaiz)
+                    ? Resource.Unspecified
+                    : _fields.CausaRaiz;
+            }
+        }
+
+        public string Fonte {
+            get {
+                if (_fields.IssueType != JiraConsts.IssueTypeBug) {
+                    return default;
+                }
+                return string.IsNullOrEmpty(_fields.Fonte)
+                    ? Resource.Unspecified
+                    : _fields.Fonte;
+            }
+        }
 
         public string FinanciadorImplementacao => _fields.FinanciadorImplementacao;
 
